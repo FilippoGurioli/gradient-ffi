@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <Target Name="BuildKotlinLib" BeforeTargets="Build">
+    <Exec Command="./build-kotlib.sh" />
+  </Target>
+
+  <ItemGroup>
+    <Content Include="../collektive-lib/lib/build/bin/native/releaseShared/libsimple_gradient.so">
+      <Link>libsimple_gradient.so</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>
