@@ -4,15 +4,12 @@ import it.unibo.collektive.Collektive
 
 class CollektiveEngine(val nodeCount: Int, private val maxDegree: Int = 3) {
     private val networkManager = NetworkManager(maxDegree)
-
-    // mutable set of sources (you can control this from C#)
     val sources = mutableSetOf<Int>()
 
     private val devices: List<Collektive<Int, Int>>
-    private val lastValues: IntArray
+    private val lastValues: IntArray = IntArray(nodeCount) { Int.MAX_VALUE }
 
     init {
-        lastValues = IntArray(nodeCount) { Int.MAX_VALUE }
 
         devices = (0 until nodeCount).map { id ->
             val network = SimpleNetwork(networkManager, id)
@@ -43,4 +40,6 @@ class CollektiveEngine(val nodeCount: Int, private val maxDegree: Int = 3) {
     }
 
     fun getValue(nodeId: Int): Int = lastValues[nodeId]
+
+    fun getNeighborhood(nodeId: Int): Set<Int> = networkManager.getConnectionsOf(nodeId)
 }

@@ -1,6 +1,7 @@
 package simple.gradient
 
 import arrow.atomic.AtomicInt
+import kotlinx.cinterop.*
 import kotlin.experimental.ExperimentalNativeApi
 
 private val nextHandle = AtomicInt(1)
@@ -47,4 +48,26 @@ fun step(handle: Int, rounds: Int) {
 fun getValue(handle: Int, nodeId: Int): Int {
     val engine = engines[handle] ?: return Int.MAX_VALUE
     return engine.getValue(nodeId)
+}
+
+@OptIn(ExperimentalNativeApi::class, ExperimentalForeignApi::class)
+@CName("get_neighborhood")
+fun getNeighborhood(
+    handle: Int,
+    nodeId: Int,
+    outSize: CPointer<IntVar>
+): CPointer<IntVar>? {
+    val set = engines[handle]?.getNeighborhood(nodeId) ?: emptySet()
+    val size = set.size
+    outSize.pointed.value = size
+    if (size == 0) {
+        return null
+    }
+    val array: CPointer<IntVar> = nativeHeap.allocArray(size)
+    var i = 0
+    for (v in set) {
+        array[i] = v
+        i++
+    }
+    return array
 }
