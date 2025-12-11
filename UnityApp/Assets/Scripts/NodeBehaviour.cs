@@ -5,8 +5,8 @@ public class NodeBehaviour : MonoBehaviour
 {
     private CollektiveEngine _engine;
     private Renderer _renderer;
-    private readonly Color _minColor = Color.blue;
-    private readonly Color _maxColor = Color.red;
+    private readonly Color _minColor = Color.white;
+    private readonly Color _maxColor = Color.black;
 
     public int Id { get; private set; }
 
@@ -21,7 +21,6 @@ public class NodeBehaviour : MonoBehaviour
 
     private void DisplayGradient(int value)
     {
-        if (Id == 90) Debug.Log(value);
         var t = Mathf.InverseLerp(0f, 6, value);
         var color = Color.Lerp(_minColor, _maxColor, t);
         _renderer.material.color = color;

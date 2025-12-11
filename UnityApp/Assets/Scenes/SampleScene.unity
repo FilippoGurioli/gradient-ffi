@@ -167,7 +167,7 @@ MonoBehaviour:
   nodeCount: 100
   maxDegree: 3
   sources: 00000000
-  timeScale: 0.1
+  timeScale: 0.01
   rounds: 10
   nodePrefab: {fileID: 2148512758480813076, guid: 8222f78618b9ac314ab51a649986c1a6, type: 3}
   distance: 2

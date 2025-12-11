@@ -12,6 +12,10 @@ public class LinkBehaviour : MonoBehaviour
         _a = a;
         _b = b;
         _line = GetComponent<LineRenderer>();
+        _line.widthMultiplier = 0.2f;
+        _line.material.SetColor("_BaseColor", Color.black);
+        _line.material.SetColor("_Tint", Color.black);
+        _line.generateLightingData = true;
         UpdatePositions();
     }
 
