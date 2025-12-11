@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 internal static class CollektiveNativeApi
@@ -25,4 +26,7 @@ internal static class CollektiveNativeApi
 
     [DllImport(LibName, EntryPoint = "get_value", CallingConvention = CallingConvention.Cdecl)]
     public static extern int GetValue(int handle, int nodeId);
+
+    [DllImport(LibName, EntryPoint = "get_neighborhood", CallingConvention = CallingConvention.Cdecl)]
+    public static extern List<int> GetNeighborhood(int nodeId);
 }

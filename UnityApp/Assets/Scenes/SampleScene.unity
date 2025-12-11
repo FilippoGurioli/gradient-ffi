@@ -129,6 +129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 117283545}
   - component: {fileID: 117283546}
+  - component: {fileID: 117283547}
   m_Layer: 0
   m_Name: CollektiveEngine
   m_TagString: Untagged
@@ -168,8 +169,21 @@ MonoBehaviour:
   sources: 00000000
   timeScale: 0.1
   rounds: 10
-  nodePrefab: {fileID: 481884058362055207, guid: 8222f78618b9ac314ab51a649986c1a6, type: 3}
+  nodePrefab: {fileID: 2148512758480813076, guid: 8222f78618b9ac314ab51a649986c1a6, type: 3}
   distance: 2
+--- !u!114 &117283547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 117283544}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9be4d26acfb146ed8ba024e195a2f528, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LinksVisualizer
+  linkPrefab: {fileID: 7225181229245948336, guid: 51628547c6d084d9ab7fbac951beebe4, type: 3}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0

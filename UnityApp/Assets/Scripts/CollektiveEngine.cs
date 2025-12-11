@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class CollektiveEngine : MonoBehaviour
@@ -8,13 +9,14 @@ public class CollektiveEngine : MonoBehaviour
     [SerializeField] private List<int> sources = new List<int> { 0 };
     [SerializeField] private float timeScale = 0.1f;
     [SerializeField] private int rounds = 10;
-    [SerializeField] private GameObject nodePrefab;
+    [SerializeField] private NodeBehaviour nodePrefab;
     [SerializeField] private float distance = 3f;
 
     private int _handle;
     private int _currentRound;
+    private Dictionary<int, NodeBehaviour> _nodes = new();
 
-    private void Start()
+    private void Awake()
     {
         _handle = CollektiveNativeApi.Create(nodeCount, maxDegree);
         foreach (var source in sources)
@@ -38,6 +40,7 @@ public class CollektiveEngine : MonoBehaviour
             var go = Instantiate(nodePrefab, position, Quaternion.identity);
             var node = go.GetComponent<NodeBehaviour>();
             node.Initialize(i, this);
+            _nodes.Add(i, node);
         }
     }
 
@@ -45,4 +48,24 @@ public class CollektiveEngine : MonoBehaviour
         nodeId % 5 * distance, (int)(nodeId / 5) * distance, 0);
 
     public int GetValue(int id) => CollektiveNativeApi.GetValue(_handle, id);
+
+    public List<(NodeBehaviour, NodeBehaviour)> GetAllLinks()
+    {
+        var result = new List<(NodeBehaviour, NodeBehaviour)>();
+
+        foreach (var (_, node) in _nodes)
+        {
+            var neighborhood = CollektiveNativeApi.GetNeighborhood(node.Id);
+            foreach (var neighborId in neighborhood)
+            {
+                if (!_nodes.TryGetValue(neighborId, out var neighborNode))
+                    continue;
+                if (node.Id >= neighborNode.Id)
+                    continue;
+                result.Add((node, neighborNode));
+            }
+        }
+
+        return result;
+    }
 }

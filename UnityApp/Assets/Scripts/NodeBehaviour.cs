@@ -4,19 +4,20 @@ using UnityEngine;
 public class NodeBehaviour : MonoBehaviour
 {
     private CollektiveEngine _engine;
-    private int _id;
     private Renderer _renderer;
     private readonly Color _minColor = Color.blue;
     private readonly Color _maxColor = Color.red;
 
+    public int Id { get; private set;  }
+    
     public void Initialize(int id, CollektiveEngine engine)
     {
-        _id = id;
+        Id = id;
         _engine = engine;
         _renderer = GetComponent<Renderer>();
     }
 
-    private void Update() => DisplayGradient(_engine.GetValue(_id));
+    private void Update() => DisplayGradient(_engine.GetValue(Id));
 
     private void DisplayGradient(int value)
     {
