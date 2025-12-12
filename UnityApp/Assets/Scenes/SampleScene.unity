@@ -167,10 +167,11 @@ MonoBehaviour:
   nodeCount: 94
   maxDegree: 3
   sources: 00000000
-  timeScale: 0.01
+  timeScale: 0.05
   rounds: 10
   nodePrefab: {fileID: 2148512758480813076, guid: 8222f78618b9ac314ab51a649986c1a6, type: 3}
-  distance: 2
+  distance: 1.5
+  infiniteRounds: 1
 --- !u!114 &117283547
 MonoBehaviour:
   m_ObjectHideFlags: 0
