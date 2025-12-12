@@ -8,7 +8,7 @@ public class CollektiveEngine : MonoBehaviour
     [SerializeField] private List<int> sources = new List<int> { 0 };
     [SerializeField] private float timeScale = 0.1f;
     [SerializeField] private int rounds = 10;
-    [SerializeField] private NodeBehaviour nodePrefab;
+    [SerializeField] private GameObject nodePrefab;
     [SerializeField] private float distance = 3f;
     [SerializeField] private bool noStop;
 
