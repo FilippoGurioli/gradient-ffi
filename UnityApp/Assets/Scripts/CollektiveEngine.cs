@@ -14,7 +14,7 @@ public class CollektiveEngine : MonoBehaviour
 
     private int _handle;
     private int _currentRound;
-    private Dictionary<int, NodeBehaviour> _nodes = new();
+    private readonly Dictionary<int, NodeBehaviour> _nodes = new();
 
     private void Awake()
     {
@@ -176,4 +176,6 @@ public class CollektiveEngine : MonoBehaviour
         }
         return result;
     }
+
+    public bool IsSource(int id) => sources.Contains(id);
 }

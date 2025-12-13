@@ -5,8 +5,6 @@ public class NodeBehaviour : MonoBehaviour
 {
     private CollektiveEngine _engine;
     private Renderer _renderer;
-    private readonly Color _minColor = Color.white;
-    private readonly Color _maxColor = Color.black;
     [SerializeField] private double currentValue;
 
     public int Id { get; private set; }
@@ -24,7 +22,7 @@ public class NodeBehaviour : MonoBehaviour
     {
         currentValue = value;
         var t = Mathf.InverseLerp(0f, 30f, (float)value);
-        var color = Color.Lerp(_minColor, _maxColor, t);
+        var color = _engine.IsSource(Id) ? Color.white : Color.HSVToRGB(t, 1f, 1f);
         _renderer.material.color = color;
     }
 }

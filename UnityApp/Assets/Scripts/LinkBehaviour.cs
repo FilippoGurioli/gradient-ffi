@@ -7,17 +7,13 @@ public class LinkBehaviour : MonoBehaviour
     private NodeBehaviour _b;
     private LineRenderer _line;
 
-    public (NodeBehaviour, NodeBehaviour) Sides => (_a, _b);
+    private (NodeBehaviour, NodeBehaviour) Sides => (_a, _b);
 
     public void Initialize(NodeBehaviour a, NodeBehaviour b)
     {
         _a = a;
         _b = b;
         _line = GetComponent<LineRenderer>();
-        _line.widthMultiplier = 0.2f;
-        _line.material.SetColor("_BaseColor", Color.black);
-        _line.material.SetColor("_Tint", Color.black);
-        _line.generateLightingData = true;
         UpdatePositions();
     }
 
@@ -49,8 +45,8 @@ public class LinkBehaviour : MonoBehaviour
     {
         unchecked
         {
-            int hashA = _a != null ? _a.GetHashCode() : 0;
-            int hashB = _b != null ? _b.GetHashCode() : 0;
+            var hashA = _a != null ? _a.GetHashCode() : 0;
+            var hashB = _b != null ? _b.GetHashCode() : 0;
             return hashA ^ hashB;
         }
     }
