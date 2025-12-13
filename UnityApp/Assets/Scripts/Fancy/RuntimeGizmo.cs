@@ -1,8 +1,10 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class RuntimeTranslateTool : MonoBehaviour
+public sealed class RuntimeGizmo : MonoBehaviour
 {
+    public static RuntimeGizmo Instance { get; private set; }
+
     [Header("References")]
     [SerializeField] private GameObject gizmoRoot;
     [SerializeField] private Collider xHandle;
@@ -20,7 +22,7 @@ public class RuntimeTranslateTool : MonoBehaviour
     [SerializeField] private float maxGizmoScale = 10f;
 
     private Transform _selected;
-    private Camera cam;
+    private Camera _cam;
 
     private enum Axis { None, X, Y, Z }
     private Axis _activeAxis = Axis.None;
@@ -29,84 +31,135 @@ public class RuntimeTranslateTool : MonoBehaviour
     private Vector3 _startTargetPos;
     private Vector3 _startHitPointOnPlane;
 
+    #region Unity lifecycle
+
     private void Awake()
     {
-        if (cam == null) cam = Camera.main;
+        // --- Singleton enforcement ---
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+
+        _cam = Camera.main;
 
         if (gizmoRoot != null)
             gizmoRoot.SetActive(false);
     }
 
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
+
     private void Update()
     {
-        if (cam == null) return;
+        if (_cam == null)
+            return;
+
         UpdateGizmoTransform();
+
+        // Dragging in progress
         if (_activeAxis != Axis.None)
         {
             if (Mouse.current.leftButton.isPressed)
                 DragSelectedAlongAxis();
             else
                 _activeAxis = Axis.None;
+
             return;
         }
+
+        // Ignore selection while rotating camera
         if (Mouse.current.rightButton.isPressed)
             return;
+
+        // Try grabbing gizmo handle first
         if (Mouse.current.leftButton.wasPressedThisFrame && TryBeginDragOnHandle())
             return;
+
+        // Otherwise select object
         if (Mouse.current.leftButton.wasPressedThisFrame)
             TrySelectObjectUnderMouse();
     }
 
-    private void UpdateGizmoTransform()
-    {
-        if (gizmoRoot == null) return;
-        if (_selected == null)
-        {
-            if (gizmoRoot.activeSelf) gizmoRoot.SetActive(false);
-            return;
-        }
-        if (!gizmoRoot.activeSelf) gizmoRoot.SetActive(true);
-        gizmoRoot.transform.position = _selected.position;
-        gizmoRoot.transform.rotation = Quaternion.identity;
-        float dist = Vector3.Distance(cam.transform.position, gizmoRoot.transform.position);
-        float s = Mathf.Clamp(dist * gizmoScaleFactor, minGizmoScale, maxGizmoScale);
-        gizmoRoot.transform.localScale = Vector3.one * s;
-    }
+    #endregion
+
+    #region Selection
 
     private void TrySelectObjectUnderMouse()
     {
         var ray = ScreenRay();
+
         if (Physics.Raycast(ray, out var hit, rayDistance, selectableMask, QueryTriggerInteraction.Ignore))
-        {
             _selected = hit.transform;
-            Debug.Log($"[{name}] selected {_selected.name}", this);
-        }
         else
             _selected = null;
     }
 
+    #endregion
+
+    #region Gizmo
+
+    private void UpdateGizmoTransform()
+    {
+        if (gizmoRoot == null)
+            return;
+
+        if (_selected == null)
+        {
+            if (gizmoRoot.activeSelf)
+                gizmoRoot.SetActive(false);
+            return;
+        }
+
+        if (!gizmoRoot.activeSelf)
+            gizmoRoot.SetActive(true);
+
+        gizmoRoot.transform.position = _selected.position;
+        gizmoRoot.transform.rotation = Quaternion.identity;
+
+        float distance = Vector3.Distance(_cam.transform.position, gizmoRoot.transform.position);
+        float scale = Mathf.Clamp(distance * gizmoScaleFactor, minGizmoScale, maxGizmoScale);
+        gizmoRoot.transform.localScale = Vector3.one * scale;
+    }
+
     private bool TryBeginDragOnHandle()
     {
-        if (_selected == null) return false;
+        if (_selected == null)
+            return false;
+
         var ray = ScreenRay();
+
         if (!Physics.Raycast(ray, out var hit, rayDistance, gizmoMask, QueryTriggerInteraction.Ignore))
             return false;
+
         if (hit.collider == xHandle) _activeAxis = Axis.X;
         else if (hit.collider == yHandle) _activeAxis = Axis.Y;
         else if (hit.collider == zHandle) _activeAxis = Axis.Z;
         else return false;
+
         _startTargetPos = _selected.position;
+
         Vector3 axisDir = AxisDirectionWorld(_activeAxis);
-        Vector3 planeNormal = Vector3.Cross(axisDir, cam.transform.forward);
+        Vector3 planeNormal = Vector3.Cross(axisDir, _cam.transform.forward);
+
         if (planeNormal.sqrMagnitude < 1e-6f)
-            planeNormal = Vector3.Cross(axisDir, cam.transform.up);
+            planeNormal = Vector3.Cross(axisDir, _cam.transform.up);
+
         planeNormal.Normalize();
         _dragPlane = new Plane(planeNormal, _startTargetPos);
+
         if (!_dragPlane.Raycast(ray, out float enter))
         {
             _activeAxis = Axis.None;
             return false;
         }
+
         _startHitPointOnPlane = ray.GetPoint(enter);
         return true;
     }
@@ -118,20 +171,29 @@ public class RuntimeTranslateTool : MonoBehaviour
             _activeAxis = Axis.None;
             return;
         }
+
         var ray = ScreenRay();
+
         if (!_dragPlane.Raycast(ray, out float enter))
             return;
+
         Vector3 hitPoint = ray.GetPoint(enter);
         Vector3 deltaOnPlane = hitPoint - _startHitPointOnPlane;
+
         Vector3 axisDir = AxisDirectionWorld(_activeAxis);
         float amount = Vector3.Dot(deltaOnPlane, axisDir);
+
         _selected.position = _startTargetPos + axisDir * amount;
     }
+
+    #endregion
+
+    #region Utilities
 
     private Ray ScreenRay()
     {
         Vector2 mousePos = Mouse.current.position.ReadValue();
-        return cam.ScreenPointToRay(mousePos);
+        return _cam.ScreenPointToRay(mousePos);
     }
 
     private static Vector3 AxisDirectionWorld(Axis axis)
@@ -144,4 +206,6 @@ public class RuntimeTranslateTool : MonoBehaviour
             _ => Vector3.zero
         };
     }
+
+    #endregion
 }
